@@ -3,271 +3,468 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Amazon Ads Optimizer</title>
+<title>Pili Nüsse Ads Optimizer</title>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
 <style>
   @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap');
   * { box-sizing: border-box; margin: 0; padding: 0; }
-  body { font-family: 'Inter', sans-serif; background: #0f1724; min-height: 100vh; color: #e2e8f0; }
 
-  /* Header */
+  :root {
+    --bg:      #1a0e05;
+    --bg2:     #241508;
+    --card:    #2c1a09;
+    --border:  rgba(212,160,23,0.18);
+    --gold:    #d4a017;
+    --gold2:   #f6c94e;
+    --text:    #f0e0c0;
+    --muted:   rgba(240,224,192,0.4);
+    --green:   #68d391;
+    --yellow:  #f6e05e;
+    --red:     #fc8181;
+  }
+
+  body { font-family: 'Inter', sans-serif; background: var(--bg); color: var(--text); min-height: 100vh; }
+
+  /* ── HEADER ── */
   .header {
-    background: linear-gradient(135deg, #0f1724 0%, #1a2a4a 100%);
-    padding: 40px 24px 32px;
-    text-align: center;
-    border-bottom: 1px solid rgba(99,179,237,0.15);
-  }
-  .logo { font-size: 36px; margin-bottom: 12px; }
-  .header h1 { font-size: 24px; font-weight: 800; color: #fff; margin-bottom: 6px; }
-  .header h1 span { color: #63b3ed; }
-  .header p { font-size: 14px; color: rgba(255,255,255,0.45); }
-
-  /* Steps */
-  .steps {
-    display: flex;
-    justify-content: center;
-    gap: 0;
-    padding: 24px;
-    max-width: 700px;
-    margin: 0 auto;
-  }
-  .step {
-    flex: 1;
+    background: linear-gradient(135deg, #1a0e05 0%, #2d1a08 60%, #1a0e05 100%);
+    border-bottom: 1px solid var(--border);
+    padding: 36px 24px 28px;
     text-align: center;
     position: relative;
+    overflow: hidden;
   }
-  .step::after {
-    content: '';
-    position: absolute;
-    top: 18px; right: -50%;
-    width: 100%; height: 2px;
-    background: rgba(99,179,237,0.2);
-    z-index: 0;
+  .header::before {
+    content: '🌰';
+    position: absolute; top: -20px; left: -20px;
+    font-size: 140px; opacity: 0.04;
   }
-  .step:last-child::after { display: none; }
-  .step-num {
-    width: 36px; height: 36px;
-    background: rgba(99,179,237,0.15);
-    border: 1.5px solid rgba(99,179,237,0.3);
-    border-radius: 50%;
-    display: flex; align-items: center; justify-content: center;
-    margin: 0 auto 8px;
-    font-size: 13px; font-weight: 700; color: #63b3ed;
-    position: relative; z-index: 1;
+  .header::after {
+    content: '🌰';
+    position: absolute; bottom: -30px; right: -10px;
+    font-size: 180px; opacity: 0.04;
   }
-  .step-label { font-size: 11px; color: rgba(255,255,255,0.4); line-height: 1.4; }
+  .logo { font-size: 42px; margin-bottom: 10px; }
+  .header h1 { font-size: 22px; font-weight: 800; color: var(--gold2); margin-bottom: 5px; }
+  .header p { font-size: 13px; color: var(--muted); }
+  .badge {
+    display: inline-block; margin-top: 10px;
+    background: rgba(212,160,23,0.12); border: 1px solid rgba(212,160,23,0.25);
+    color: var(--gold); font-size: 11px; font-weight: 600;
+    padding: 4px 14px; border-radius: 20px; letter-spacing: 0.05em;
+  }
 
-  /* Main card */
-  .container { max-width: 680px; margin: 0 auto; padding: 0 24px 48px; }
+  /* ── TABS ── */
+  .tabs { display: flex; border-bottom: 1px solid var(--border); }
+  .tab {
+    flex: 1; padding: 14px; text-align: center; cursor: pointer;
+    font-size: 13px; font-weight: 600; color: var(--muted);
+    border-bottom: 2px solid transparent; transition: all 0.2s;
+  }
+  .tab.active { color: var(--gold2); border-bottom-color: var(--gold); }
 
+  /* ── CONTAINER ── */
+  .container { max-width: 680px; margin: 0 auto; padding: 24px; }
+
+  .panel { display: none; }
+  .panel.active { display: block; }
+
+  /* ── CARDS ── */
   .card {
-    background: rgba(255,255,255,0.04);
-    border: 1px solid rgba(255,255,255,0.08);
-    border-radius: 16px;
-    padding: 28px;
-    margin-bottom: 16px;
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: 14px;
+    padding: 22px;
+    margin-bottom: 14px;
   }
-
   .card-title {
-    font-size: 13px; font-weight: 700; color: #63b3ed;
-    text-transform: uppercase; letter-spacing: 0.08em;
-    margin-bottom: 16px;
-    display: flex; align-items: center; gap: 8px;
+    font-size: 11px; font-weight: 700; color: var(--gold);
+    text-transform: uppercase; letter-spacing: 0.1em;
+    margin-bottom: 16px; display: flex; align-items: center; gap: 7px;
   }
 
-  /* Upload zones */
-  .upload-zone {
-    border: 2px dashed rgba(99,179,237,0.25);
-    border-radius: 10px;
-    padding: 24px 16px;
-    text-align: center;
+  /* ── UPLOAD ZONES ── */
+  .uz {
+    border: 2px dashed rgba(212,160,23,0.2);
+    border-radius: 10px; padding: 22px 16px;
+    text-align: center; cursor: pointer; transition: all 0.2s;
+    position: relative; margin-bottom: 10px;
+  }
+  .uz:hover, .uz.drag-over { border-color: var(--gold); background: rgba(212,160,23,0.05); }
+  .uz input[type="file"] { position: absolute; inset: 0; opacity: 0; cursor: pointer; width: 100%; height: 100%; }
+  .uz-icon { font-size: 26px; margin-bottom: 7px; }
+  .uz-title { font-size: 13px; font-weight: 600; color: var(--text); margin-bottom: 3px; }
+  .uz-sub { font-size: 11px; color: var(--muted); }
+  .file-ok { display: none; align-items: center; gap: 6px; justify-content: center; margin-top: 8px; color: var(--green); font-size: 12px; font-weight: 600; }
+
+  /* ── SLIDER ── */
+  .slider-wrap { margin-bottom: 16px; }
+  .slider-header { display: flex; justify-content: space-between; align-items: baseline; margin-bottom: 10px; }
+  .slider-label { font-size: 11px; font-weight: 700; color: var(--gold); text-transform: uppercase; letter-spacing: 0.1em; }
+  .slider-value {
+    font-size: 28px; font-weight: 800; color: var(--gold2);
+    line-height: 1;
+  }
+  .slider-value span { font-size: 14px; font-weight: 500; }
+  input[type="range"] {
+    width: 100%; height: 6px; border-radius: 3px; outline: none;
+    background: linear-gradient(to right, var(--green) 0%, var(--yellow) 50%, var(--red) 100%);
+    -webkit-appearance: none;
     cursor: pointer;
-    transition: all 0.2s;
-    position: relative;
-    margin-bottom: 12px;
   }
-  .upload-zone:hover, .upload-zone.drag-over {
-    border-color: #63b3ed;
-    background: rgba(99,179,237,0.06);
+  input[type="range"]::-webkit-slider-thumb {
+    -webkit-appearance: none;
+    width: 22px; height: 22px;
+    background: var(--gold2);
+    border-radius: 50%;
+    border: 3px solid var(--bg);
+    box-shadow: 0 0 8px rgba(212,160,23,0.4);
+    cursor: pointer;
   }
-  .upload-zone input[type="file"] {
-    position: absolute; inset: 0; opacity: 0; cursor: pointer; width: 100%; height: 100%;
-  }
-  .uz-icon { font-size: 28px; margin-bottom: 8px; }
-  .uz-title { font-size: 14px; font-weight: 600; color: #fff; margin-bottom: 3px; }
-  .uz-sub { font-size: 11.5px; color: rgba(255,255,255,0.3); }
+  .slider-marks { display: flex; justify-content: space-between; margin-top: 6px; }
+  .slider-marks span { font-size: 10px; color: var(--muted); }
 
-  .file-badge {
-    display: inline-flex; align-items: center; gap: 6px;
-    background: rgba(104,211,145,0.12); border: 1px solid rgba(104,211,145,0.25);
-    color: #68d391; padding: 5px 12px; border-radius: 20px;
-    font-size: 12px; font-weight: 500; margin-top: 8px;
+  /* ── ACOS AMPEL ── */
+  .ampel-section { margin-top: 16px; display: none; }
+  .ampel-title { font-size: 11px; font-weight: 700; color: var(--gold); text-transform: uppercase; letter-spacing: 0.1em; margin-bottom: 12px; }
+  .ampel-row {
+    display: flex; align-items: center; gap: 12px;
+    padding: 9px 12px; border-radius: 8px; margin-bottom: 6px;
+    background: rgba(255,255,255,0.03); border: 1px solid rgba(255,255,255,0.06);
   }
+  .ampel-dot { width: 10px; height: 10px; border-radius: 50%; flex-shrink: 0; }
+  .ampel-name { flex: 1; font-size: 12px; color: var(--text); }
+  .ampel-acos { font-size: 12px; font-weight: 700; }
+  .ampel-status { font-size: 10px; color: var(--muted); }
+  .green-dot { background: var(--green); box-shadow: 0 0 6px rgba(104,211,145,0.5); }
+  .yellow-dot { background: var(--yellow); box-shadow: 0 0 6px rgba(246,224,94,0.5); }
+  .red-dot { background: var(--red); box-shadow: 0 0 6px rgba(252,129,129,0.5); }
+  .acos-green { color: var(--green); }
+  .acos-yellow { color: var(--yellow); }
+  .acos-red { color: var(--red); }
 
-  /* Form fields */
-  label { display: block; font-size: 12px; font-weight: 600; color: rgba(255,255,255,0.5); text-transform: uppercase; letter-spacing: 0.05em; margin-bottom: 6px; }
-
+  /* ── FORM FIELDS ── */
+  label { display: block; font-size: 11px; font-weight: 700; color: var(--muted); text-transform: uppercase; letter-spacing: 0.08em; margin-bottom: 6px; }
   input[type="text"], input[type="email"] {
     width: 100%; padding: 11px 14px;
-    background: rgba(255,255,255,0.05);
-    border: 1.5px solid rgba(255,255,255,0.1);
-    border-radius: 8px; color: #fff; font-size: 14px;
-    font-family: 'Inter', sans-serif; outline: none;
-    transition: border-color 0.2s; margin-bottom: 14px;
+    background: rgba(255,255,255,0.04);
+    border: 1.5px solid var(--border);
+    border-radius: 8px; color: var(--text);
+    font-size: 14px; font-family: 'Inter', sans-serif;
+    outline: none; transition: border-color 0.2s; margin-bottom: 14px;
   }
-  input:focus { border-color: #63b3ed; }
-  input::placeholder { color: rgba(255,255,255,0.2); }
+  input[type="text"]:focus, input[type="email"]:focus { border-color: var(--gold); }
+  input::placeholder { color: rgba(240,224,192,0.2); }
 
-  /* ACOS Target */
-  .acos-row { display: flex; gap: 10px; align-items: center; margin-bottom: 14px; }
-  .acos-row input { margin-bottom: 0; width: 90px; text-align: center; flex-shrink: 0; }
-  .acos-hint { font-size: 12px; color: rgba(255,255,255,0.35); line-height: 1.5; }
-
-  /* Info box */
-  .info-box {
-    background: rgba(99,179,237,0.08);
-    border: 1px solid rgba(99,179,237,0.2);
-    border-radius: 10px; padding: 14px 16px;
-    font-size: 12.5px; color: rgba(255,255,255,0.6);
-    line-height: 1.7; margin-bottom: 16px;
-  }
-  .info-box strong { color: #63b3ed; }
-
-  /* Features */
-  .features { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 20px; }
-  .feature {
-    background: rgba(255,255,255,0.03);
-    border: 1px solid rgba(255,255,255,0.06);
-    border-radius: 8px; padding: 12px;
-  }
-  .feature .fi { font-size: 18px; margin-bottom: 5px; }
-  .feature .ft { font-size: 11.5px; font-weight: 600; color: rgba(255,255,255,0.7); margin-bottom: 3px; }
-  .feature .fx { font-size: 10.5px; color: rgba(255,255,255,0.3); line-height: 1.4; }
-
-  /* Submit */
+  /* ── SUBMIT ── */
   button[type="submit"] {
     width: 100%; padding: 15px;
-    background: linear-gradient(135deg, #2b6cb0, #63b3ed);
-    color: #fff; border: none; border-radius: 10px;
-    font-size: 15px; font-weight: 700; cursor: pointer;
-    font-family: 'Inter', sans-serif;
-    transition: opacity 0.2s; letter-spacing: 0.02em;
+    background: linear-gradient(135deg, #a0620a, #d4a017, #f6c94e);
+    color: #1a0e05; border: none; border-radius: 10px;
+    font-size: 15px; font-weight: 800; cursor: pointer;
+    font-family: 'Inter', sans-serif; letter-spacing: 0.02em;
+    transition: opacity 0.2s; box-shadow: 0 4px 20px rgba(212,160,23,0.3);
   }
   button:hover { opacity: 0.9; }
-  button:disabled { opacity: 0.4; cursor: not-allowed; }
 
-  .footer { text-align: center; font-size: 11px; color: rgba(255,255,255,0.2); padding: 20px; }
+  /* ── INFO BOX ── */
+  .info { background: rgba(212,160,23,0.07); border: 1px solid rgba(212,160,23,0.18); border-radius: 10px; padding: 13px 16px; font-size: 12px; color: var(--muted); line-height: 1.7; margin-bottom: 14px; }
+  .info strong { color: var(--gold); }
+
+  /* ── HISTORY ── */
+  .history-empty { text-align: center; padding: 40px; color: var(--muted); font-size: 13px; }
+  .history-item {
+    background: var(--card); border: 1px solid var(--border);
+    border-radius: 12px; padding: 16px 18px; margin-bottom: 10px;
+  }
+  .hi-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px; }
+  .hi-date { font-size: 11px; color: var(--muted); }
+  .hi-acos { font-size: 12px; font-weight: 700; color: var(--gold); }
+  .hi-files { font-size: 12px; color: var(--text); margin-bottom: 6px; }
+  .hi-badges { display: flex; gap: 6px; flex-wrap: wrap; }
+  .hi-badge { font-size: 10px; padding: 2px 8px; border-radius: 10px; font-weight: 600; }
+  .hb-g { background: rgba(104,211,145,0.12); color: var(--green); }
+  .hb-y { background: rgba(246,224,94,0.12); color: var(--yellow); }
+  .hb-r { background: rgba(252,129,129,0.12); color: var(--red); }
+
+  .footer { text-align: center; font-size: 11px; color: rgba(240,224,192,0.15); padding: 24px; }
 </style>
 </head>
 <body>
 
 <div class="header">
-  <div class="logo">🎯</div>
-  <h1>Amazon Ads <span>Optimizer</span></h1>
-  <p>Bulk-File hochladen → optimiertes File per E-Mail zurückbekommen</p>
+  <div class="logo">🌰</div>
+  <h1>Pili Nüsse – Ads Optimizer</h1>
+  <p>Bulk-File hochladen · ACOS analysieren · optimiertes File per E-Mail</p>
+  <div class="badge">🤖 KI-gestützte Bid-Optimierung</div>
 </div>
 
-<!-- Steps -->
-<div class="steps">
-  <div class="step"><div class="step-num">1</div><div class="step-label">Bulk-File &<br>Reports hochladen</div></div>
-  <div class="step"><div class="step-num">2</div><div class="step-label">Wir analysieren<br>automatisch</div></div>
-  <div class="step"><div class="step-num">3</div><div class="step-label">Optimiertes File<br>per E-Mail</div></div>
+<!-- TABS -->
+<div class="tabs">
+  <div class="tab active" onclick="switchTab('upload')">📤 Upload & Analyse</div>
+  <div class="tab" onclick="switchTab('history')">📋 Verlaufshistorie</div>
 </div>
 
 <div class="container">
 
-  <form action="https://formsubmit.co/felix@brandfarmer.de" method="POST" enctype="multipart/form-data">
-    <input type="hidden" name="_subject" value="🎯 Ads Optimizer Upload – Janne Nossol">
-    <input type="hidden" name="_template" value="table">
-    <input type="hidden" name="_captcha" value="false">
-    <input type="hidden" name="_next" value="https://mail65.github.io/ads-optimizer-janne/danke.html">
+  <!-- ══ UPLOAD PANEL ══ -->
+  <div class="panel active" id="panel-upload">
 
-    <!-- Contact -->
+    <form action="https://formsubmit.co/felix@brandfarmer.de" method="POST" enctype="multipart/form-data">
+      <input type="hidden" name="_subject" value="🌰 Pili Nüsse Ads Optimizer Upload">
+      <input type="hidden" name="_template" value="table">
+      <input type="hidden" name="_captcha" value="false">
+      <input type="hidden" name="_next" value="https://mail65.github.io/ads-optimizer-janne/danke.html">
+      <input type="hidden" name="target_acos_hidden" id="acos-hidden" value="20">
+
+      <!-- Contact -->
+      <div class="card">
+        <div class="card-title">👤 Deine Daten</div>
+        <label>E-Mail (wohin soll das optimierte File?)</label>
+        <input type="email" name="email" placeholder="janne.nossol@tosalfood.de" required>
+        <label>Anmerkungen (optional)</label>
+        <input type="text" name="notes" placeholder="z.B. Saison-Start, neue Produkte, besondere Wünsche...">
+      </div>
+
+      <!-- ACOS Slider -->
+      <div class="card">
+        <div class="card-title">🎯 Ziel-ACOS einstellen</div>
+        <div class="slider-wrap">
+          <div class="slider-header">
+            <span class="slider-label">Target ACOS</span>
+            <div class="slider-value"><span id="acos-display">20</span><span>%</span></div>
+          </div>
+          <input type="range" min="0" max="50" value="20" id="acos-slider" oninput="updateAcos(this.value)">
+          <div class="slider-marks">
+            <span>0% – Sehr sparsam</span>
+            <span>25% – Ausgewogen</span>
+            <span>50% – Aggressiv</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- Files + Live Ampel -->
+      <div class="card">
+        <div class="card-title">📁 Dateien hochladen</div>
+
+        <div class="info">
+          <strong>Wo bekommst du die Dateien?</strong><br>
+          Bulk-File: <em>advertising.amazon.de → Bulk Operations → Exportieren</em><br>
+          Reports: <em>advertising.amazon.de → Berichte → Berichtserstellung → Kampagnen + Targeting</em>
+        </div>
+
+        <div class="uz" id="zone-bulk" ondragover="dz(event,this,true)" ondragleave="dz(event,this,false)" ondrop="dropFile(event,'bulk-input','bulk-ok','zone-bulk')">
+          <div class="uz-icon">📊</div>
+          <div class="uz-title">Bulk-File</div>
+          <div class="uz-sub">Excel (.xlsx) aus Bulk Operations</div>
+          <input type="file" name="bulk_file" id="bulk-input" accept=".xlsx,.xls,.csv" onchange="fileSelected(this,'bulk-ok')">
+        </div>
+        <div class="file-ok" id="bulk-ok">✅ <span id="bulk-name"></span></div>
+
+        <div class="uz" id="zone-reports" style="margin-top:12px;" ondragover="dz(event,this,true)" ondragleave="dz(event,this,false)" ondrop="dropFile(event,'rep-input','rep-ok','zone-reports')">
+          <div class="uz-icon">📈</div>
+          <div class="uz-title">Performance Reports</div>
+          <div class="uz-sub">Kampagnen- & Targeting-Report (.csv / .xlsx / .zip)</div>
+          <input type="file" name="reports" id="rep-input" accept=".xlsx,.xls,.csv,.zip" multiple onchange="fileSelected(this,'rep-ok'); analyzeReports(this)">
+        </div>
+        <div class="file-ok" id="rep-ok">✅ <span id="rep-name"></span></div>
+
+        <!-- LIVE AMPEL -->
+        <div class="ampel-section" id="ampel-section">
+          <div class="ampel-title">🚦 Live-Auswertung deiner Kampagnen</div>
+          <div id="ampel-rows"></div>
+          <div id="ampel-summary" style="margin-top:10px; font-size:11px; color:var(--muted);"></div>
+        </div>
+      </div>
+
+      <button type="submit" onclick="saveHistory()">🌰 Jetzt optimieren →</button>
+    </form>
+  </div>
+
+  <!-- ══ HISTORY PANEL ══ -->
+  <div class="panel" id="panel-history">
     <div class="card">
-      <div class="card-title">👤 Deine Daten</div>
-      <label>Name</label>
-      <input type="text" name="name" placeholder="Janne Nossol" required>
-      <label>E-Mail (wohin soll das optimierte File?)</label>
-      <input type="email" name="email" placeholder="janne.nossol@tosalfood.de" required>
+      <div class="card-title">📋 Bisherige Uploads</div>
+      <div id="history-content"></div>
     </div>
+  </div>
 
-    <!-- Files -->
-    <div class="card">
-      <div class="card-title">📁 Dateien hochladen</div>
-
-      <div class="info-box">
-        <strong>Wo bekommst du die Dateien?</strong><br>
-        Bulk-File: <em>advertising.amazon.de → Bulk Operations → Exportieren</em><br>
-        Reports: <em>advertising.amazon.de → Berichte → Berichtserstellung → Kampagnen + Targeting</em>
-      </div>
-
-      <div class="upload-zone" id="zone1">
-        <div class="uz-icon">📊</div>
-        <div class="uz-title">Bulk-File</div>
-        <div class="uz-sub">Excel-Datei aus Bulk Operations (.xlsx)</div>
-        <input type="file" name="bulk_file" id="bulk" accept=".xlsx,.xls,.csv">
-      </div>
-      <div id="bulk-badge"></div>
-
-      <div class="upload-zone" id="zone2" style="margin-top:12px;">
-        <div class="uz-icon">📈</div>
-        <div class="uz-title">Performance Reports</div>
-        <div class="uz-sub">Kampagnen- & Targeting-Report als ZIP oder einzelne CSVs</div>
-        <input type="file" name="reports" id="reports" accept=".xlsx,.xls,.csv,.zip" multiple>
-      </div>
-      <div id="reports-badge"></div>
-    </div>
-
-    <!-- Settings -->
-    <div class="card">
-      <div class="card-title">⚙️ Optimierungseinstellungen</div>
-      <label>Ziel-ACOS (%)</label>
-      <div class="acos-row">
-        <input type="text" name="target_acos" value="20" id="acos-input">
-        <div class="acos-hint">Standard: 20% — Keywords über diesem Wert werden reduziert, gut performende hochgesetzt.</div>
-      </div>
-      <label>Anmerkungen (optional)</label>
-      <input type="text" name="notes" placeholder="z.B. Saison-Boost, neue Produkte, besondere Wünsche...">
-    </div>
-
-    <!-- Features -->
-    <div class="features">
-      <div class="feature"><div class="fi">🤖</div><div class="ft">Automatische Bid-Optimierung</div><div class="fx">Bids werden auf Basis von ACOS & Klickdaten angepasst</div></div>
-      <div class="feature"><div class="fi">💀</div><div class="ft">Zombie-Erkennung</div><div class="fx">Keywords ohne Verkäufe werden identifiziert & pausiert</div></div>
-      <div class="feature"><div class="fi">📊</div><div class="ft">Performance-Report</div><div class="fx">Du bekommst eine Zusammenfassung was sich geändert hat</div></div>
-      <div class="feature"><div class="fi">⚡</div><div class="ft">Schnelle Lieferung</div><div class="fx">Optimiertes File kommt innerhalb weniger Stunden zurück</div></div>
-    </div>
-
-    <button type="submit">Jetzt hochladen & optimieren →</button>
-  </form>
-
-  <div class="footer">Brandfarmer · felix@brandfarmer.de · Für Fragen einfach antworten</div>
+  <div class="footer">Brandfarmer · felix@brandfarmer.de · Pili Nüsse GmbH</div>
 </div>
 
 <script>
-  function setupZone(zoneId, inputId, badgeId) {
-    const zone = document.getElementById(zoneId);
-    const input = document.getElementById(inputId);
-    const badge = document.getElementById(badgeId);
+// ── TAB SWITCHING ──
+function switchTab(tab) {
+  document.querySelectorAll('.tab').forEach((t,i) => t.classList.toggle('active', (tab==='upload'&&i===0)||(tab==='history'&&i===1)));
+  document.getElementById('panel-upload').classList.toggle('active', tab==='upload');
+  document.getElementById('panel-history').classList.toggle('active', tab==='history');
+  if (tab==='history') renderHistory();
+}
 
-    function showFiles(files) {
-      if (!files || files.length === 0) { badge.innerHTML = ''; return; }
-      const names = Array.from(files).map(f => f.name).join(', ');
-      badge.innerHTML = `<div class="file-badge">✅ ${names}</div>`;
-    }
+// ── ACOS SLIDER ──
+function updateAcos(v) {
+  document.getElementById('acos-display').textContent = v;
+  document.getElementById('acos-hidden').value = v;
+  // Re-color ampel if already loaded
+  renderAmpel(lastAmpelData, parseInt(v));
+}
 
-    input.addEventListener('change', () => showFiles(input.files));
-    zone.addEventListener('dragover', e => { e.preventDefault(); zone.classList.add('drag-over'); });
-    zone.addEventListener('dragleave', () => zone.classList.remove('drag-over'));
-    zone.addEventListener('drop', e => {
-      e.preventDefault();
-      zone.classList.remove('drag-over');
-      input.files = e.dataTransfer.files;
-      showFiles(e.dataTransfer.files);
-    });
+// ── DRAG & DROP ──
+function dz(e, el, over) { e.preventDefault(); el.classList.toggle('drag-over', over); }
+function dropFile(e, inputId, okId, zoneId) {
+  e.preventDefault();
+  document.getElementById(zoneId).classList.remove('drag-over');
+  const input = document.getElementById(inputId);
+  input.files = e.dataTransfer.files;
+  fileSelected(input, okId);
+  if (inputId === 'rep-input') analyzeReports(input);
+}
+
+function fileSelected(input, okId) {
+  const ok = document.getElementById(okId);
+  const nameId = okId.replace('-ok', '-name');
+  if (input.files.length > 0) {
+    const names = Array.from(input.files).map(f=>f.name).join(', ');
+    ok.style.display = 'flex';
+    const el = document.getElementById(nameId);
+    if (el) el.textContent = names;
   }
+}
 
-  setupZone('zone1', 'bulk', 'bulk-badge');
-  setupZone('zone2', 'reports', 'reports-badge');
+// ── LIVE ANALYSIS ──
+let lastAmpelData = [];
+
+function analyzeReports(input) {
+  if (!input.files.length) return;
+  const file = input.files[0];
+  if (!file.name.match(/\.(xlsx|xls|csv)$/i)) return;
+
+  const reader = new FileReader();
+  reader.onload = function(e) {
+    try {
+      const wb = XLSX.read(e.target.result, { type: 'array' });
+      const sheet = wb.Sheets[wb.SheetNames[0]];
+      const rows = XLSX.utils.sheet_to_json(sheet, { defval: '' });
+
+      // Find spend/revenue/campaign columns (flexible column detection)
+      const campaigns = {};
+      rows.forEach(row => {
+        const keys = Object.keys(row);
+        // Find campaign name
+        const campKey = keys.find(k => /kampagne|campaign name/i.test(k));
+        const spendKey = keys.find(k => /ausgaben|spend|kosten|cost/i.test(k) && !/klick|click/i.test(k));
+        const revenueKey = keys.find(k => /umsatz|revenue|sales|verkauf/i.test(k));
+
+        if (!campKey) return;
+        const name = row[campKey] || '';
+        if (!name) return;
+
+        const spend = parseFloat(String(row[spendKey]||'0').replace(',','.')) || 0;
+        const revenue = parseFloat(String(row[revenueKey]||'0').replace(',','.')) || 0;
+
+        if (!campaigns[name]) campaigns[name] = { spend: 0, revenue: 0 };
+        campaigns[name].spend += spend;
+        campaigns[name].revenue += revenue;
+      });
+
+      lastAmpelData = Object.entries(campaigns)
+        .filter(([,v]) => v.spend > 0)
+        .map(([name, v]) => ({
+          name,
+          acos: v.revenue > 0 ? Math.round((v.spend / v.revenue) * 100) : 999,
+          spend: v.spend,
+          revenue: v.revenue
+        }))
+        .sort((a,b) => a.acos - b.acos);
+
+      const target = parseInt(document.getElementById('acos-slider').value);
+      renderAmpel(lastAmpelData, target);
+    } catch(err) {
+      console.warn('Analysis error:', err);
+    }
+  };
+  reader.readAsArrayBuffer(file);
+}
+
+function renderAmpel(data, target) {
+  if (!data.length) return;
+  const section = document.getElementById('ampel-section');
+  const rows = document.getElementById('ampel-rows');
+  const summary = document.getElementById('ampel-summary');
+
+  section.style.display = 'block';
+
+  let green=0, yellow=0, red=0;
+  rows.innerHTML = data.slice(0,12).map(c => {
+    let cls, dotCls, statusText;
+    if (c.acos === 999) {
+      cls = 'acos-red'; dotCls = 'red-dot'; statusText = 'Kein Umsatz – pausieren';
+      red++;
+    } else if (c.acos <= target) {
+      cls = 'acos-green'; dotCls = 'green-dot'; statusText = 'Super – Bid erhöhen';
+      green++;
+    } else if (c.acos <= target * 1.3) {
+      cls = 'acos-yellow'; dotCls = 'yellow-dot'; statusText = 'Grenzwertig – beobachten';
+      yellow++;
+    } else {
+      cls = 'acos-red'; dotCls = 'red-dot'; statusText = 'Zu teuer – Bid senken';
+      red++;
+    }
+    const acosText = c.acos === 999 ? '–' : c.acos + '%';
+    const shortName = c.name.length > 38 ? c.name.substring(0,35) + '...' : c.name;
+    return `<div class="ampel-row">
+      <div class="ampel-dot ${dotCls}"></div>
+      <div class="ampel-name">${shortName}</div>
+      <div class="ampel-acos ${cls}">${acosText}</div>
+      <div class="ampel-status">${statusText}</div>
+    </div>`;
+  }).join('');
+
+  summary.innerHTML = `🟢 ${green} gut &nbsp;·&nbsp; 🟡 ${yellow} grenzwertig &nbsp;·&nbsp; 🔴 ${red} zu optimieren`;
+}
+
+// ── HISTORY ──
+function saveHistory() {
+  const history = JSON.parse(localStorage.getItem('ads_history') || '[]');
+  const target = document.getElementById('acos-slider').value;
+  const bulkFile = document.getElementById('bulk-input').files[0];
+  const repFiles = document.getElementById('rep-input').files;
+
+  const entry = {
+    date: new Date().toLocaleDateString('de-DE', { day:'2-digit', month:'2-digit', year:'numeric', hour:'2-digit', minute:'2-digit' }),
+    acos: target,
+    bulk: bulkFile ? bulkFile.name : '–',
+    reports: Array.from(repFiles).map(f=>f.name).join(', ') || '–',
+    green: lastAmpelData.filter(c=>c.acos<=parseInt(target)).length,
+    yellow: lastAmpelData.filter(c=>c.acos>parseInt(target)&&c.acos<=parseInt(target)*1.3).length,
+    red: lastAmpelData.filter(c=>c.acos>parseInt(target)*1.3||c.acos===999).length,
+  };
+  history.unshift(entry);
+  localStorage.setItem('ads_history', JSON.stringify(history.slice(0,20)));
+}
+
+function renderHistory() {
+  const history = JSON.parse(localStorage.getItem('ads_history') || '[]');
+  const el = document.getElementById('history-content');
+  if (!history.length) {
+    el.innerHTML = '<div class="history-empty">🌰 Noch kein Upload – der erste erscheint hier nach dem nächsten Upload.</div>';
+    return;
+  }
+  el.innerHTML = history.map(h => `
+    <div class="history-item">
+      <div class="hi-header">
+        <span class="hi-date">📅 ${h.date}</span>
+        <span class="hi-acos">Ziel-ACOS: ${h.acos}%</span>
+      </div>
+      <div class="hi-files">📊 ${h.bulk} &nbsp;·&nbsp; 📈 ${h.reports}</div>
+      <div class="hi-badges">
+        <span class="hi-badge hb-g">🟢 ${h.green} gut</span>
+        <span class="hi-badge hb-y">🟡 ${h.yellow} grenzwertig</span>
+        <span class="hi-badge hb-r">🔴 ${h.red} zu optimieren</span>
+      </div>
+    </div>
+  `).join('');
+}
 </script>
 </body>
 </html>
