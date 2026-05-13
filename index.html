@@ -1,0 +1,273 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Amazon Ads Optimizer</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap');
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { font-family: 'Inter', sans-serif; background: #0f1724; min-height: 100vh; color: #e2e8f0; }
+
+  /* Header */
+  .header {
+    background: linear-gradient(135deg, #0f1724 0%, #1a2a4a 100%);
+    padding: 40px 24px 32px;
+    text-align: center;
+    border-bottom: 1px solid rgba(99,179,237,0.15);
+  }
+  .logo { font-size: 36px; margin-bottom: 12px; }
+  .header h1 { font-size: 24px; font-weight: 800; color: #fff; margin-bottom: 6px; }
+  .header h1 span { color: #63b3ed; }
+  .header p { font-size: 14px; color: rgba(255,255,255,0.45); }
+
+  /* Steps */
+  .steps {
+    display: flex;
+    justify-content: center;
+    gap: 0;
+    padding: 24px;
+    max-width: 700px;
+    margin: 0 auto;
+  }
+  .step {
+    flex: 1;
+    text-align: center;
+    position: relative;
+  }
+  .step::after {
+    content: '';
+    position: absolute;
+    top: 18px; right: -50%;
+    width: 100%; height: 2px;
+    background: rgba(99,179,237,0.2);
+    z-index: 0;
+  }
+  .step:last-child::after { display: none; }
+  .step-num {
+    width: 36px; height: 36px;
+    background: rgba(99,179,237,0.15);
+    border: 1.5px solid rgba(99,179,237,0.3);
+    border-radius: 50%;
+    display: flex; align-items: center; justify-content: center;
+    margin: 0 auto 8px;
+    font-size: 13px; font-weight: 700; color: #63b3ed;
+    position: relative; z-index: 1;
+  }
+  .step-label { font-size: 11px; color: rgba(255,255,255,0.4); line-height: 1.4; }
+
+  /* Main card */
+  .container { max-width: 680px; margin: 0 auto; padding: 0 24px 48px; }
+
+  .card {
+    background: rgba(255,255,255,0.04);
+    border: 1px solid rgba(255,255,255,0.08);
+    border-radius: 16px;
+    padding: 28px;
+    margin-bottom: 16px;
+  }
+
+  .card-title {
+    font-size: 13px; font-weight: 700; color: #63b3ed;
+    text-transform: uppercase; letter-spacing: 0.08em;
+    margin-bottom: 16px;
+    display: flex; align-items: center; gap: 8px;
+  }
+
+  /* Upload zones */
+  .upload-zone {
+    border: 2px dashed rgba(99,179,237,0.25);
+    border-radius: 10px;
+    padding: 24px 16px;
+    text-align: center;
+    cursor: pointer;
+    transition: all 0.2s;
+    position: relative;
+    margin-bottom: 12px;
+  }
+  .upload-zone:hover, .upload-zone.drag-over {
+    border-color: #63b3ed;
+    background: rgba(99,179,237,0.06);
+  }
+  .upload-zone input[type="file"] {
+    position: absolute; inset: 0; opacity: 0; cursor: pointer; width: 100%; height: 100%;
+  }
+  .uz-icon { font-size: 28px; margin-bottom: 8px; }
+  .uz-title { font-size: 14px; font-weight: 600; color: #fff; margin-bottom: 3px; }
+  .uz-sub { font-size: 11.5px; color: rgba(255,255,255,0.3); }
+
+  .file-badge {
+    display: inline-flex; align-items: center; gap: 6px;
+    background: rgba(104,211,145,0.12); border: 1px solid rgba(104,211,145,0.25);
+    color: #68d391; padding: 5px 12px; border-radius: 20px;
+    font-size: 12px; font-weight: 500; margin-top: 8px;
+  }
+
+  /* Form fields */
+  label { display: block; font-size: 12px; font-weight: 600; color: rgba(255,255,255,0.5); text-transform: uppercase; letter-spacing: 0.05em; margin-bottom: 6px; }
+
+  input[type="text"], input[type="email"] {
+    width: 100%; padding: 11px 14px;
+    background: rgba(255,255,255,0.05);
+    border: 1.5px solid rgba(255,255,255,0.1);
+    border-radius: 8px; color: #fff; font-size: 14px;
+    font-family: 'Inter', sans-serif; outline: none;
+    transition: border-color 0.2s; margin-bottom: 14px;
+  }
+  input:focus { border-color: #63b3ed; }
+  input::placeholder { color: rgba(255,255,255,0.2); }
+
+  /* ACOS Target */
+  .acos-row { display: flex; gap: 10px; align-items: center; margin-bottom: 14px; }
+  .acos-row input { margin-bottom: 0; width: 90px; text-align: center; flex-shrink: 0; }
+  .acos-hint { font-size: 12px; color: rgba(255,255,255,0.35); line-height: 1.5; }
+
+  /* Info box */
+  .info-box {
+    background: rgba(99,179,237,0.08);
+    border: 1px solid rgba(99,179,237,0.2);
+    border-radius: 10px; padding: 14px 16px;
+    font-size: 12.5px; color: rgba(255,255,255,0.6);
+    line-height: 1.7; margin-bottom: 16px;
+  }
+  .info-box strong { color: #63b3ed; }
+
+  /* Features */
+  .features { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 20px; }
+  .feature {
+    background: rgba(255,255,255,0.03);
+    border: 1px solid rgba(255,255,255,0.06);
+    border-radius: 8px; padding: 12px;
+  }
+  .feature .fi { font-size: 18px; margin-bottom: 5px; }
+  .feature .ft { font-size: 11.5px; font-weight: 600; color: rgba(255,255,255,0.7); margin-bottom: 3px; }
+  .feature .fx { font-size: 10.5px; color: rgba(255,255,255,0.3); line-height: 1.4; }
+
+  /* Submit */
+  button[type="submit"] {
+    width: 100%; padding: 15px;
+    background: linear-gradient(135deg, #2b6cb0, #63b3ed);
+    color: #fff; border: none; border-radius: 10px;
+    font-size: 15px; font-weight: 700; cursor: pointer;
+    font-family: 'Inter', sans-serif;
+    transition: opacity 0.2s; letter-spacing: 0.02em;
+  }
+  button:hover { opacity: 0.9; }
+  button:disabled { opacity: 0.4; cursor: not-allowed; }
+
+  .footer { text-align: center; font-size: 11px; color: rgba(255,255,255,0.2); padding: 20px; }
+</style>
+</head>
+<body>
+
+<div class="header">
+  <div class="logo">🎯</div>
+  <h1>Amazon Ads <span>Optimizer</span></h1>
+  <p>Bulk-File hochladen → optimiertes File per E-Mail zurückbekommen</p>
+</div>
+
+<!-- Steps -->
+<div class="steps">
+  <div class="step"><div class="step-num">1</div><div class="step-label">Bulk-File &<br>Reports hochladen</div></div>
+  <div class="step"><div class="step-num">2</div><div class="step-label">Wir analysieren<br>automatisch</div></div>
+  <div class="step"><div class="step-num">3</div><div class="step-label">Optimiertes File<br>per E-Mail</div></div>
+</div>
+
+<div class="container">
+
+  <form action="https://formsubmit.co/felix@brandfarmer.de" method="POST" enctype="multipart/form-data">
+    <input type="hidden" name="_subject" value="🎯 Ads Optimizer Upload – Janne Nossol">
+    <input type="hidden" name="_template" value="table">
+    <input type="hidden" name="_captcha" value="false">
+    <input type="hidden" name="_next" value="https://mail65.github.io/ads-optimizer-janne/danke.html">
+
+    <!-- Contact -->
+    <div class="card">
+      <div class="card-title">👤 Deine Daten</div>
+      <label>Name</label>
+      <input type="text" name="name" placeholder="Janne Nossol" required>
+      <label>E-Mail (wohin soll das optimierte File?)</label>
+      <input type="email" name="email" placeholder="janne.nossol@tosalfood.de" required>
+    </div>
+
+    <!-- Files -->
+    <div class="card">
+      <div class="card-title">📁 Dateien hochladen</div>
+
+      <div class="info-box">
+        <strong>Wo bekommst du die Dateien?</strong><br>
+        Bulk-File: <em>advertising.amazon.de → Bulk Operations → Exportieren</em><br>
+        Reports: <em>advertising.amazon.de → Berichte → Berichtserstellung → Kampagnen + Targeting</em>
+      </div>
+
+      <div class="upload-zone" id="zone1">
+        <div class="uz-icon">📊</div>
+        <div class="uz-title">Bulk-File</div>
+        <div class="uz-sub">Excel-Datei aus Bulk Operations (.xlsx)</div>
+        <input type="file" name="bulk_file" id="bulk" accept=".xlsx,.xls,.csv">
+      </div>
+      <div id="bulk-badge"></div>
+
+      <div class="upload-zone" id="zone2" style="margin-top:12px;">
+        <div class="uz-icon">📈</div>
+        <div class="uz-title">Performance Reports</div>
+        <div class="uz-sub">Kampagnen- & Targeting-Report als ZIP oder einzelne CSVs</div>
+        <input type="file" name="reports" id="reports" accept=".xlsx,.xls,.csv,.zip" multiple>
+      </div>
+      <div id="reports-badge"></div>
+    </div>
+
+    <!-- Settings -->
+    <div class="card">
+      <div class="card-title">⚙️ Optimierungseinstellungen</div>
+      <label>Ziel-ACOS (%)</label>
+      <div class="acos-row">
+        <input type="text" name="target_acos" value="20" id="acos-input">
+        <div class="acos-hint">Standard: 20% — Keywords über diesem Wert werden reduziert, gut performende hochgesetzt.</div>
+      </div>
+      <label>Anmerkungen (optional)</label>
+      <input type="text" name="notes" placeholder="z.B. Saison-Boost, neue Produkte, besondere Wünsche...">
+    </div>
+
+    <!-- Features -->
+    <div class="features">
+      <div class="feature"><div class="fi">🤖</div><div class="ft">Automatische Bid-Optimierung</div><div class="fx">Bids werden auf Basis von ACOS & Klickdaten angepasst</div></div>
+      <div class="feature"><div class="fi">💀</div><div class="ft">Zombie-Erkennung</div><div class="fx">Keywords ohne Verkäufe werden identifiziert & pausiert</div></div>
+      <div class="feature"><div class="fi">📊</div><div class="ft">Performance-Report</div><div class="fx">Du bekommst eine Zusammenfassung was sich geändert hat</div></div>
+      <div class="feature"><div class="fi">⚡</div><div class="ft">Schnelle Lieferung</div><div class="fx">Optimiertes File kommt innerhalb weniger Stunden zurück</div></div>
+    </div>
+
+    <button type="submit">Jetzt hochladen & optimieren →</button>
+  </form>
+
+  <div class="footer">Brandfarmer · felix@brandfarmer.de · Für Fragen einfach antworten</div>
+</div>
+
+<script>
+  function setupZone(zoneId, inputId, badgeId) {
+    const zone = document.getElementById(zoneId);
+    const input = document.getElementById(inputId);
+    const badge = document.getElementById(badgeId);
+
+    function showFiles(files) {
+      if (!files || files.length === 0) { badge.innerHTML = ''; return; }
+      const names = Array.from(files).map(f => f.name).join(', ');
+      badge.innerHTML = `<div class="file-badge">✅ ${names}</div>`;
+    }
+
+    input.addEventListener('change', () => showFiles(input.files));
+    zone.addEventListener('dragover', e => { e.preventDefault(); zone.classList.add('drag-over'); });
+    zone.addEventListener('dragleave', () => zone.classList.remove('drag-over'));
+    zone.addEventListener('drop', e => {
+      e.preventDefault();
+      zone.classList.remove('drag-over');
+      input.files = e.dataTransfer.files;
+      showFiles(e.dataTransfer.files);
+    });
+  }
+
+  setupZone('zone1', 'bulk', 'bulk-badge');
+  setupZone('zone2', 'reports', 'reports-badge');
+</script>
+</body>
+</html>
